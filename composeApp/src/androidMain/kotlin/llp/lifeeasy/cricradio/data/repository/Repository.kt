@@ -1,14 +1,14 @@
 package llp.lifeeasy.cricradio.data.repository
 
 import llp.lifeeasy.cricradio.data.KtorClient
-import llp.lifeeasy.cricradio.data.models.scorecard.ScoreCard
-import llp.lifeeasy.cricradio.data.models.venue.VenueEntity
+import llp.lifeeasy.cricradio.data.models.Resource
+import llp.lifeeasy.cricradio.data.models.common.Result
 
 interface Repository {
     val ktorClient: KtorClient
 
-    suspend fun getScoreCard(): ScoreCard
+    suspend fun getScoreCardDetails(): Resource<Result.ScoreCardResult>
 
-    suspend fun getVenueDetails(): VenueEntity
+    suspend fun getVenueDetails(): Resource<Result.VenueResult>
 
 }

@@ -26,6 +26,9 @@ kotlin {
             implementation(libs.kotlinx.serialization)
             implementation(libs.ktor.client.contentNegotiation)
             implementation(libs.ktor.kotlinx.serialization)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

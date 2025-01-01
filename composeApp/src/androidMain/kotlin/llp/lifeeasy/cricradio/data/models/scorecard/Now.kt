@@ -13,5 +13,5 @@ data class Now(
     @SerialName("run_rate")
     val runRate: String,
     @SerialName("sessionLeft")
-    val sessionLeft: String?
+    val sessionLeft: Int?
 )

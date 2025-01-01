@@ -1,4 +1,4 @@
-package llp.lifeeasy.cricradio.data.models.scorecard
+package llp.lifeeasy.cricradio.data.models.common
 
 
 import androidx.annotation.Keep
@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class ResponseData(
+data class ResponseData<T : Result>(
     @SerialName("message")
     val message: String,
     @SerialName("result")
-    val result: Result
+    val result: T
 )

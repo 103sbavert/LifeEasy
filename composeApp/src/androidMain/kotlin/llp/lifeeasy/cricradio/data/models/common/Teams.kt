@@ -1,4 +1,4 @@
-package llp.lifeeasy.cricradio.data.models.venue
+package llp.lifeeasy.cricradio.data.models.common
 
 
 import androidx.annotation.Keep
@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Teams(
     @SerialName("a")
-    val a: A,
+    val a: TeamA,
     @SerialName("b")
-    val b: B
+    val b: TeamB
 )
