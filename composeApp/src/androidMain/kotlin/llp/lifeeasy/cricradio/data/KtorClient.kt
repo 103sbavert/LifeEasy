@@ -33,7 +33,7 @@ import java.lang.Thread.sleep
 
 class KtorClient {
     companion object {
-        const val WS_HOST = "wss://ws.postman-echo.com/raw"
+        const val WS_HOST = "echo.websocket.org"
         const val HTTP_HOST = "3.6.243.12"
         const val PORT = 5001
         const val AUTH_TOKEN = "Basic Y3JpY2tldFJhZGlvOmNyaWNrZXRAJCUjUmFkaW8xMjM="
@@ -59,14 +59,19 @@ class KtorClient {
                 }
             )
         }
+    }
 
+    private val webSocketClient = HttpClient(CIO) {
         WebSockets {
-            pingIntervalMillis = 20_000
+            pingIntervalMillis = 2000
         }
     }
 
     private val webSocketSession: Flow<WebSocketSession> = flow {
-        emit(httpClient.webSocketSession(method = HttpMethod.Get, host = WS_HOST))
+        emit(webSocketClient.webSocketSession {
+            method = HttpMethod.Get
+            host = WS_HOST
+        })
     }
 
     suspend fun websocketEcho(message: String = "Echo'd message") {
