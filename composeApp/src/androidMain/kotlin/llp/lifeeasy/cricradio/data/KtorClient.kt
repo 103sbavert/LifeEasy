@@ -110,7 +110,7 @@ class KtorClient {
 
             return Resource.Success(result.body<APIResponse<Result.VenueResult>>().responseData.result)
         } catch (e: Exception) {
-            Log.e("VenueDetails", "The following exception occurred\n${e.stackTrace}")
+            Log.e("VenueDetails", "The following exception occurred\n${e.message}")
             return Resource.Failure(e.message!!)
         }
     }
