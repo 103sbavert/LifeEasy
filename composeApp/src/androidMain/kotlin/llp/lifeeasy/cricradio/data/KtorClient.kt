@@ -13,9 +13,13 @@ import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.get
 import io.ktor.client.request.host
 import io.ktor.client.request.parameter
+import io.ktor.client.request.url
 import io.ktor.http.HttpMethod
+import io.ktor.http.URLProtocol
 import io.ktor.http.appendPathSegments
+import io.ktor.http.authority
 import io.ktor.http.isSuccess
+import io.ktor.serialization.JsonConvertException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketExtensionsConfig
@@ -25,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
 import llp.lifeeasy.cricradio.data.models.Resource
 import llp.lifeeasy.cricradio.data.models.common.APIResponse
@@ -33,7 +38,7 @@ import java.lang.Thread.sleep
 
 class KtorClient {
     companion object {
-        const val WS_HOST = "echo.websocket.org"
+        const val WS_HOST = "ws.postman-echo.com"
         const val HTTP_HOST = "3.6.243.12"
         const val PORT = 5001
         const val AUTH_TOKEN = "Basic Y3JpY2tldFJhZGlvOmNyaWNrZXRAJCUjUmFkaW8xMjM="
@@ -53,11 +58,9 @@ class KtorClient {
             }
         }
         install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                }
-            )
+            json(Json {
+                ignoreUnknownKeys = true
+            })
         }
     }
 
@@ -69,15 +72,16 @@ class KtorClient {
 
     private val webSocketSession: Flow<WebSocketSession> = flow {
         emit(webSocketClient.webSocketSession {
-            method = HttpMethod.Get
-            host = WS_HOST
+            url("wss://ws.postman-echo.com/raw")
         })
     }
 
     suspend fun websocketEcho(message: String = "Echo'd message") {
         webSocketSession.collectLatest {
-            it.send(Frame.Text(message))
-            Log.e("WEBSOCKET", "websocketEcho: " + (it.incoming.receive() as? Frame.Text)?.readText())
+            if (it.isActive) {
+                it.send(Frame.Text(message))
+                Log.e("WEBSOCKET", "websocketEcho: " + (it.incoming.receive() as? Frame.Text)?.readText())
+            }
         }
     }
 
@@ -94,15 +98,21 @@ class KtorClient {
     }
 
     suspend fun getVenueDetails(): Resource<Result.VenueResult> {
-        val result = httpClient.get {
-            url {
-                appendPathSegments("venue-info")
+        try {
+            val result = httpClient.get {
+                url {
+                    appendPathSegments("venue-info")
+                }
+                parameter("key", MATCH_KEY)
             }
-            parameter("key", MATCH_KEY)
-        }
 
-        if (!result.status.isSuccess()) return Resource.Failure(result.status.description)
-        return Resource.Success(result.body<APIResponse<Result.VenueResult>>().responseData.result)
+            if (!result.status.isSuccess()) return Resource.Failure(result.status.description)
+
+            return Resource.Success(result.body<APIResponse<Result.VenueResult>>().responseData.result)
+        } catch (e: Exception) {
+            Log.e("VenueDetails", "The following exception occurred\n${e.stackTrace}")
+            return Resource.Failure(e.message!!)
+        }
     }
 
 
