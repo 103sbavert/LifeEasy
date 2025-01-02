@@ -5,12 +5,16 @@ import llp.lifeeasy.cricradio.data.models.Resource
 import llp.lifeeasy.cricradio.data.models.common.APIResponse
 import llp.lifeeasy.cricradio.data.models.common.Result
 
-class RepositoryImpl(override val ktorClient: KtorClient) : Repository {
+class RepositoryImpl(private val ktorClient: KtorClient) : Repository {
     override suspend fun getScoreCardDetails(): Resource<Result.ScoreCardResult> {
         return ktorClient.getScoreCard()
     }
 
     override suspend fun getVenueDetails(): Resource<Result.VenueResult> {
         return ktorClient.getVenueDetails()
+    }
+
+    override suspend fun sendWSEcho(message: String) {
+        ktorClient.websocketEcho(message)
     }
 }

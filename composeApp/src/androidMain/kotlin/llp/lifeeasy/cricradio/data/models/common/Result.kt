@@ -60,7 +60,7 @@ sealed interface Result {
         @SerialName("season")
         val season: Season,
         @SerialName("secoundUmpire")
-        val secoundUmpire: String,
+        val secondUmpire: String,
         @SerialName("start_date")
         val startDate: StartDate,
         @SerialName("status")

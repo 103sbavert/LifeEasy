@@ -2,6 +2,7 @@ package llp.lifeeasy.cricradio.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -10,19 +11,16 @@ import llp.lifeeasy.cricradio.data.models.Resource
 import llp.lifeeasy.cricradio.data.models.common.Result
 import llp.lifeeasy.cricradio.data.models.common.Team
 import llp.lifeeasy.cricradio.data.repository.Repository
-import llp.lifeeasy.cricradio.data.repository.RepositoryImpl
 
-class MainViewModel : ViewModel() {
-    private val repository: Repository = RepositoryImpl(KtorClient())
-
+class MainViewModel(private val repository: Repository) : ViewModel() {
     private val _scoreCardResult: MutableStateFlow<Resource<Result.ScoreCardResult>> = MutableStateFlow(Resource.Loading())
     private val _venueResult: MutableStateFlow<Resource<Result.VenueResult>> = MutableStateFlow(Resource.Loading())
     val scoreCardResult get() = _scoreCardResult as StateFlow<Resource<Result.ScoreCardResult>>
-    val venueCardResult get() = _venueResult as StateFlow<Resource<Result.VenueResult>>
+    val venueResult get() = _venueResult as StateFlow<Resource<Result.VenueResult>>
     private val _currentBattingTeam = MutableStateFlow<Resource<Team>>(Resource.Loading())
     val currentBattingTeam get() = _currentBattingTeam as StateFlow<Resource<Team>>
     private val _currentBowlingTeam = MutableStateFlow<Resource<Team>>(Resource.Loading())
-    val currentBowlingTeam get() = _currentBattingTeam as StateFlow<Resource<Team>>
+    val currentBowlingTeam get() = _currentBowlingTeam as StateFlow<Resource<Team>>
 
     init {
         viewModelScope.launch {
@@ -37,7 +35,6 @@ class MainViewModel : ViewModel() {
             scoreCardResult.collectLatest {
                 when (it) {
                     is Resource.Failure -> throw IllegalStateException("Looks like the server is messed up lol! Here are some details ${(scoreCardResult.value as Resource.Failure<Result.ScoreCardResult>).message}")
-                    is Resource.Loading -> _currentBattingTeam.emit(Resource.Loading())
                     is Resource.Success -> {
                         when (it.data.settingObj.currentTeam) {
                             "a" -> {
@@ -51,10 +48,19 @@ class MainViewModel : ViewModel() {
                             }
                         }
                     }
+                    else -> {}
                 }
             }
         }
     }
 
+    init {
+        viewModelScope.launch {
+            repeat(1000) {
+                delay(2000L)
+                repository.sendWSEcho("message")
+            }
+        }
+    }
 
 }
